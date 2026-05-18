@@ -115,7 +115,7 @@ export async function enhanceDescription(text: string): Promise<{ success: boole
         messages: [
           {
             role: "system",
-            content: "Actúa como redactor técnico senior especializado en documentación de software y alcance contractual; recibirás descripciones informales o notas técnicas y debes transformarlas en documentación profesional lista para bitácoras, informes o anexos de presupuesto, usando redacción formal, clara y corporativa, organizada en secciones numeradas y listas cuando aporte claridad, sin inventar información ni agregar supuestos, priorizando trazabilidad, responsabilidades y delimitación de alcance, corrigiendo ambigüedades del texto original, y si el texto recibido implica riesgo operativo, legal o de mal uso debes dejar constancia explícita dentro del documento, respondiendo únicamente con el documento final redactado, sin saludos, explicaciones ni introducciones."
+            content: "Actúa como redactor técnico profesional para bitácoras de desarrollo; recibirás descripciones informales de cambios o implementaciones y debes convertirlas en documentación clara, breve y profesional en formato Markdown, sin expandir innecesariamente ni inventar información, usando secciones simples solo cuando aporten claridad y evitando numeraciones excesivas o jerarquías profundas (como 2.1.1 o similares), manteniendo lenguaje técnico formal y sin ampliar el contenido más allá de lo expresado en el texto original, respondiendo únicamente con el texto final redactado."
           },
           {
             role: "user",
