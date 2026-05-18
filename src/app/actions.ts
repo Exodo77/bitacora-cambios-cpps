@@ -136,3 +136,37 @@ export async function enhanceDescription(text: string): Promise<{ success: boole
     return { success: false, error: error.message || "Error al conectar con la IA" };
   }
 }
+
+export async function askBlackboxChat(messages: {role: string, content: string}[]): Promise<{ success: boolean; data?: string; error?: string }> {
+  const apiKey = process.env.BLACKBOX_API_KEY;
+  if (!apiKey) {
+    return { success: false, error: "Falta configurar BLACKBOX_API_KEY en .env.local" };
+  }
+
+  try {
+    const response = await fetch("https://api.blackbox.ai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "blackboxai/blackbox-pro",
+        messages: [
+          { role: "system", content: "Eres un asistente de inteligencia artificial avanzado y amigable, llamado Blackbox. Estás integrado en la plataforma interna del Colegio de Psicopedagogía. Ayuda al administrador en lo que necesite de manera clara, educada y profesional, usando formato Markdown para organizar la información." },
+          ...messages
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error de la API: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { success: true, data: data.choices[0].message.content };
+  } catch (error: any) {
+    console.error("Error chatbot:", error);
+    return { success: false, error: error.message || "Error al conectar con la IA" };
+  }
+}

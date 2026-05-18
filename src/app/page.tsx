@@ -1,17 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
-import { getTimelineData, saveTimelineData, TimelineEntry, verifyPassword, enhanceDescription } from "./actions";
+import { getTimelineData, saveTimelineData, TimelineEntry, verifyPassword, enhanceDescription, askBlackboxChat } from "./actions";
 
 export default function Home() {
   const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'extra' | 'pending'>('extra');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [activeTab, setActiveTab] = useState<'extra' | 'pending' | 'chat'>('extra');
+  const [isBudgetMode, setIsBudgetMode] = useState(false);
+  const [selectedBudgetIds, setSelectedBudgetIds] = useState<Set<string>>(new Set());
+
+  // Chatbot State
+  const [chatMessages, setChatMessages] = useState<{role: 'user'|'assistant', content: string}[]>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const chatMessagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (chatMessagesEndRef.current) {
+      chatMessagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatMessages]);
+
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
   
   // Auth State
-  const [isAdmin, setIsAdmin] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [loginError, setLoginError] = useState("");
@@ -286,6 +301,72 @@ export default function Home() {
           >
             Implementaciones Pendientes
           </button>
+          {isAdmin && (
+            <button 
+              className={`tab-btn ${activeTab === 'chat' ? 'active' : ''}`}
+              onClick={() => setActiveTab('chat')}
+              style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+            >
+              ✨ Chatbot IA
+            </button>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'chat' && isAdmin && (
+        <div className="chat-container print-hidden" style={{ maxWidth: '800px', margin: '0 auto 2rem', backgroundColor: 'var(--card-bg)', borderRadius: '15px', border: '1px solid var(--card-border)', display: 'flex', flexDirection: 'column', height: '600px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <div className="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {chatMessages.length === 0 ? (
+              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', marginTop: '2rem' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🤖</div>
+                <h3>Hola, soy tu asistente IA de Blackbox</h3>
+                <p>Hazme cualquier consulta general y trataré de ayudarte.</p>
+              </div>
+            ) : (
+              chatMessages.map((msg, idx) => (
+                <div key={idx} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%', backgroundColor: msg.role === 'user' ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)', color: msg.role === 'user' ? 'white' : 'var(--text-primary)', padding: '1rem', borderRadius: '15px', borderBottomRightRadius: msg.role === 'user' ? '0' : '15px', borderBottomLeftRadius: msg.role === 'assistant' ? '0' : '15px' }}>
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                </div>
+              ))
+            )}
+            {isChatLoading && (
+              <div style={{ alignSelf: 'flex-start', backgroundColor: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '15px', borderBottomLeftRadius: '0' }}>
+                <span style={{ animation: 'pulse 1.5s infinite' }}>Escribiendo...</span>
+              </div>
+            )}
+            <div ref={chatMessagesEndRef} />
+          </div>
+          <form 
+            onSubmit={async (e) => {
+              e.preventDefault();
+              if(!chatInput.trim() || isChatLoading) return;
+              const userMsg = chatInput;
+              setChatInput("");
+              const newHistory = [...chatMessages, {role: 'user' as const, content: userMsg}];
+              setChatMessages(newHistory);
+              setIsChatLoading(true);
+              const res = await askBlackboxChat(newHistory);
+              setIsChatLoading(false);
+              if(res.success && res.data) {
+                setChatMessages([...newHistory, {role: 'assistant', content: res.data}]);
+              } else {
+                setChatMessages([...newHistory, {role: 'assistant', content: `**Error:** ${res.error}`}]);
+              }
+            }} 
+            style={{ padding: '1rem', borderTop: '1px solid var(--card-border)', display: 'flex', gap: '10px' }}
+          >
+            <input 
+              type="text" 
+              value={chatInput}
+              onChange={e => setChatInput(e.target.value)}
+              placeholder="Escribe tu consulta aquí..."
+              className="form-input"
+              style={{ flex: 1, marginBottom: 0 }}
+            />
+            <button type="submit" className="btn btn-primary" disabled={isChatLoading || !chatInput.trim()}>
+              Enviar
+            </button>
+          </form>
         </div>
       )}
 
@@ -295,7 +376,7 @@ export default function Home() {
         </div>
       )}
 
-      <div className={`timeline-container ${!isBudgetMode ? `show-${activeTab}` : ''}`}>
+      <div className={`timeline-container ${!isBudgetMode ? `show-${activeTab}` : ''}`} style={{ display: activeTab === 'chat' ? 'none' : 'block' }}>
         {loading ? (
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Cargando bitácora...</div>
         ) : timelineData.length === 0 ? (
