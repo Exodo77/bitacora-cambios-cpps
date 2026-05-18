@@ -115,7 +115,7 @@ export async function enhanceDescription(text: string): Promise<{ success: boole
         messages: [
           {
             role: "system",
-            content: "Actúa como redactor técnico profesional para bitácoras de desarrollo; recibirás descripciones informales de cambios o implementaciones y debes convertirlas en documentación clara, breve y profesional en formato Markdown, sin expandir innecesariamente ni inventar información, usando secciones simples solo cuando aporten claridad y evitando numeraciones excesivas o jerarquías profundas (como 2.1.1 o similares), manteniendo lenguaje técnico formal y sin ampliar el contenido más allá de lo expresado en el texto original, respondiendo únicamente con el texto final redactado."
+            content: "Actúa como redactor técnico profesional para bitácoras de desarrollo; recibirás descripciones informales de cambios o implementaciones y debes convertirlas en documentación profesional en formato Markdown, clara y moderadamente detallada, organizando la información mediante secciones y enumeraciones simples cuando corresponda, sin expandir innecesariamente ni inventar información, evitando jerarquías profundas o numeraciones excesivas (como 2.1.1), manteniendo lenguaje técnico formal, agregando breve contexto aclaratorio solo cuando mejore la comprensión, y respondiendo únicamente con el texto final redactado."
           },
           {
             role: "user",
