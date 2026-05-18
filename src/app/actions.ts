@@ -44,7 +44,21 @@ async function ensureDataFile() {
 export async function getTimelineData(): Promise<TimelineEntry[]> {
   try {
     if (redis) {
-      const data = await redis.get<TimelineEntry[]>("timeline_data");
+      let data = await redis.get<TimelineEntry[]>("timeline_data");
+      
+      // Auto-migrate from local file if Redis is completely empty
+      if (!data || data.length === 0) {
+        try {
+          const fileData = await fs.readFile(dataFilePath, "utf-8");
+          const parsed = JSON.parse(fileData);
+          if (parsed && parsed.length > 0) {
+            await redis.set("timeline_data", parsed);
+            data = parsed;
+          }
+        } catch (e) {
+          console.log("No local file found to migrate.");
+        }
+      }
       return data || [];
     } else {
       await ensureDataFile();

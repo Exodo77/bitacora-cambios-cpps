@@ -148,14 +148,20 @@ export default function Home() {
 
   return (
     <main>
-      {/* Login Button at top right */}
-      {!isAdmin && (
+      {/* Fixed Admin Auth Buttons */}
+      {!isAdmin ? (
         <button 
           onClick={() => setIsLoginModalOpen(true)}
-          style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.8rem' }}
-          className="admin-login-btn print:hidden"
+          style={{ position: 'fixed', top: '15px', right: '15px', padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '20px', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.85rem', zIndex: 1000, backdropFilter: 'blur(10px)' }}
         >
-          Acceso Admin
+          🔒 Acceso Admin
+        </button>
+      ) : (
+        <button 
+          onClick={() => { setIsAdmin(false); setAdminPassword(''); }}
+          style={{ position: 'fixed', top: '15px', right: '15px', padding: '8px 16px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)', borderRadius: '20px', color: '#fca5a5', cursor: 'pointer', fontSize: '0.85rem', zIndex: 1000, backdropFilter: 'blur(10px)' }}
+        >
+          Cerrar Sesión
         </button>
       )}
 
