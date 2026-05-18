@@ -68,19 +68,22 @@ export default function Home() {
       .map(t => t.trim())
       .filter(t => t !== "");
 
+    // Si la fecha queda vacía al guardar, forzamos "Por definir"
+    const finalDate = formData.date || "Por definir";
+
     let newData: TimelineEntry[];
 
     if (editingEntry) {
       newData = timelineData.map(item => 
         item.id === editingEntry.id 
-          ? { ...item, ...formData, tags: tagsArray } 
+          ? { ...item, ...formData, date: finalDate, tags: tagsArray } 
           : item
       );
     } else {
       const newEntry: TimelineEntry = {
         id: Date.now().toString(),
         title: formData.title,
-        date: formData.date,
+        date: finalDate,
         description: formData.description,
         tags: tagsArray,
       };
@@ -98,6 +101,16 @@ export default function Home() {
       setTimelineData(newData);
       await saveTimelineData(newData);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString || dateString === "Por definir") return "Por definir";
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const [year, month, day] = dateString.split('-');
+      const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      return `${day} de ${months[parseInt(month, 10) - 1]}, ${year}`;
+    }
+    return dateString;
   };
 
   return (
@@ -145,7 +158,7 @@ export default function Home() {
                   </button>
                 </div>
                 
-                <span className="timeline-date">{item.date}</span>
+                <span className="timeline-date">{formatDate(item.date)}</span>
                 <h3 className="timeline-title">{item.title}</h3>
                 <p className="timeline-description">{item.description}</p>
                 <div className="timeline-tags">
@@ -181,13 +194,15 @@ export default function Home() {
               <div className="form-group">
                 <label className="form-label">Fecha</label>
                 <input 
-                  type="text" 
+                  type="date" 
                   className="form-input" 
-                  placeholder="Ej: 17 de Mayo, 2026 o Por definir"
-                  required
-                  value={formData.date}
+                  value={formData.date === "Por definir" ? "" : formData.date}
                   onChange={e => setFormData({...formData, date: e.target.value})}
+                  style={{ colorScheme: "dark" }}
                 />
+                <small style={{ color: "var(--text-secondary)", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
+                  Dejar vacío para mantener como "Por definir"
+                </small>
               </div>
               <div className="form-group">
                 <label className="form-label">Descripción</label>
