@@ -11,6 +11,7 @@ export type TimelineEntry = {
   title: string;
   description: string;
   tags: string[];
+  type: 'extra' | 'pending';
 };
 
 // Initialize data file if it doesn't exist

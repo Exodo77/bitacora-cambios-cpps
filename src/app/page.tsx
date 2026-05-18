@@ -7,6 +7,7 @@ import { getTimelineData, saveTimelineData, TimelineEntry } from "./actions";
 export default function Home() {
   const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'extra' | 'pending'>('extra');
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function Home() {
     date: "",
     description: "",
     tags: "",
+    type: "extra" as "extra" | "pending",
   });
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export default function Home() {
         date: entry.date,
         description: entry.description,
         tags: entry.tags.join(", "),
+        type: entry.type || "extra",
       });
     } else {
       setEditingEntry(null);
@@ -51,6 +54,7 @@ export default function Home() {
         date: "",
         description: "",
         tags: "",
+        type: activeTab, // Default to the current tab
       });
     }
     setIsModalOpen(true);
@@ -87,6 +91,7 @@ export default function Home() {
         date: finalDate,
         description: formData.description,
         tags: tagsArray,
+        type: formData.type,
       };
       newData = [...timelineData, newEntry];
     }
@@ -114,6 +119,9 @@ export default function Home() {
     return dateString;
   };
 
+  // Check if current tab is empty
+  const currentTabItems = timelineData.filter(item => (item.type || 'extra') === activeTab);
+
   return (
     <main>
       <div className="header-container">
@@ -140,14 +148,36 @@ export default function Home() {
         </button>
       </div>
 
-      <div className="timeline-container">
+      <div className="tabs-container">
+        <button 
+          className={`tab-btn ${activeTab === 'extra' ? 'active' : ''}`}
+          onClick={() => setActiveTab('extra')}
+        >
+          Completadas / Extras
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pending')}
+        >
+          Implementaciones Pendientes
+        </button>
+      </div>
+
+      <div className={`timeline-container show-${activeTab}`}>
         {loading ? (
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Cargando bitácora...</div>
         ) : timelineData.length === 0 ? (
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No hay registros en la bitácora.</div>
-        ) : (
-          timelineData.map((item) => (
-            <div className="timeline-item" key={item.id}>
+        ) : currentTabItems.length === 0 ? (
+          <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
+            No hay registros en esta sección.
+          </div>
+        ) : null}
+
+        {!loading && timelineData.map((item) => {
+          const itemTypeClass = item.type === 'pending' ? 'item-pending' : 'item-extra';
+          return (
+            <div className={`timeline-item ${itemTypeClass}`} key={item.id}>
               <div className="timeline-node"></div>
               <div className="timeline-content">
                 <div className="timeline-item-actions">
@@ -181,8 +211,8 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          ))
-        )}
+          );
+        })}
       </div>
 
       {isModalOpen && (
@@ -192,6 +222,19 @@ export default function Home() {
               {editingEntry ? "Editar Registro" : "Nuevo Registro"}
             </h2>
             <form onSubmit={handleSave}>
+              
+              <div className="form-group">
+                <label className="form-label">Tipo de Registro</label>
+                <select 
+                  className="form-input" 
+                  value={formData.type}
+                  onChange={e => setFormData({...formData, type: e.target.value as "extra" | "pending"})}
+                >
+                  <option value="extra">Implementaciones y Tareas Extraordinarias (Completado)</option>
+                  <option value="pending">Implementaciones Pendientes</option>
+                </select>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Título</label>
                 <input 
@@ -216,7 +259,7 @@ export default function Home() {
                 </small>
               </div>
               <div className="form-group">
-                <label className="form-label">Descripción</label>
+                <label className="form-label">Descripción (soporta Markdown)</label>
                 <textarea 
                   className="form-textarea" 
                   required

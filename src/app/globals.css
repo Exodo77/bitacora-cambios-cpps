@@ -260,6 +260,43 @@ body::after {
   gap: 0.5rem;
 }
 
+/* Tabs Logic & UI */
+.show-extra .item-pending {
+  display: none !important;
+}
+.show-pending .item-extra {
+  display: none !important;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--card-border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--text-primary);
+  border-color: var(--accent-color);
+}
+
 .tag {
   background: var(--tag-bg);
   color: var(--tag-text);
@@ -490,11 +527,17 @@ body::after {
   body::before, body::after {
     display: none;
   }
-  .controls-container, .timeline-item-actions {
+  .controls-container, .timeline-item-actions, .tabs-container {
     display: none !important;
   }
   .timeline-tags {
     display: none !important;
+  }
+  .item-pending {
+    display: none !important; /* Excluir pendientes del PDF */
+  }
+  .item-extra {
+    display: flex !important; /* Forzar mostrar las completadas aunque se esté en la otra pestaña */
   }
   .header-title {
     -webkit-text-fill-color: black;
