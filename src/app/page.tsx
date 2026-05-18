@@ -257,9 +257,6 @@ export default function Home() {
             </button>
           </>
         )}
-        <button className="btn" onClick={handlePrint}>
-          {isBudgetMode ? '🖨️ Exportar Presupuesto a PDF' : '🖨️ Exportar a PDF'}
-        </button>
       </div>
 
       {!isBudgetMode && (
@@ -528,6 +525,28 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Floating Export Button */}
+      <button 
+        className="btn print-hidden" 
+        onClick={handlePrint}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          zIndex: 1000,
+          boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+          padding: '1rem 2rem',
+          fontSize: '1.1rem',
+          backgroundColor: isBudgetMode ? 'var(--accent-secondary)' : 'var(--card-bg)',
+          color: isBudgetMode ? 'white' : 'var(--text-primary)',
+          border: '1px solid var(--accent-color)',
+          borderRadius: '50px',
+          backdropFilter: 'blur(10px)'
+        }}
+      >
+        {isBudgetMode ? '🖨️ Exportar Presupuesto a PDF' : '🖨️ Exportar a PDF'}
+      </button>
     </main>
   );
 }
