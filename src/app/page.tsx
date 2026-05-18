@@ -2,13 +2,19 @@
 
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { getTimelineData, saveTimelineData, TimelineEntry } from "./actions";
+import { getTimelineData, saveTimelineData, TimelineEntry, verifyPassword } from "./actions";
 
 export default function Home() {
   const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'extra' | 'pending'>('extra');
   
+  // Auth State
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<TimelineEntry | null>(null);
@@ -37,6 +43,18 @@ export default function Home() {
     window.print();
   };
 
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    const valid = await verifyPassword(adminPassword);
+    if (valid) {
+      setIsAdmin(true);
+      setIsLoginModalOpen(false);
+    } else {
+      setLoginError("Contraseña incorrecta");
+    }
+  };
+
   const handleOpenModal = (entry?: TimelineEntry) => {
     if (entry) {
       setEditingEntry(entry);
@@ -54,7 +72,7 @@ export default function Home() {
         date: "",
         description: "",
         tags: "",
-        type: activeTab, // Default to the current tab
+        type: activeTab,
       });
     }
     setIsModalOpen(true);
@@ -73,7 +91,6 @@ export default function Home() {
       .map(t => t.trim())
       .filter(t => t !== "");
 
-    // Si la fecha queda vacía al guardar, forzamos "Por definir"
     const finalDate = formData.date || "Por definir";
 
     let newData: TimelineEntry[];
@@ -96,16 +113,24 @@ export default function Home() {
       newData = [...timelineData, newEntry];
     }
 
-    setTimelineData(newData);
-    await saveTimelineData(newData);
-    handleCloseModal();
+    const res = await saveTimelineData(newData, adminPassword);
+    if (res.success) {
+      setTimelineData(newData);
+      handleCloseModal();
+    } else {
+      alert("Error al guardar: " + res.error);
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (confirm("¿Estás seguro de eliminar este registro?")) {
       const newData = timelineData.filter(item => item.id !== id);
-      setTimelineData(newData);
-      await saveTimelineData(newData);
+      const res = await saveTimelineData(newData, adminPassword);
+      if (res.success) {
+        setTimelineData(newData);
+      } else {
+        alert("Error al eliminar: " + res.error);
+      }
     }
   };
 
@@ -119,11 +144,21 @@ export default function Home() {
     return dateString;
   };
 
-  // Check if current tab is empty
   const currentTabItems = timelineData.filter(item => (item.type || 'extra') === activeTab);
 
   return (
     <main>
+      {/* Login Button at top right */}
+      {!isAdmin && (
+        <button 
+          onClick={() => setIsLoginModalOpen(true)}
+          style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.8rem' }}
+          className="admin-login-btn print:hidden"
+        >
+          Acceso Admin
+        </button>
+      )}
+
       <div className="header-container">
         <h1 className="header-title">Bitácora de Implementaciones</h1>
         <p className="header-subtitle">
@@ -140,9 +175,11 @@ export default function Home() {
       </div>
 
       <div className="controls-container">
-        <button className="btn btn-primary" onClick={() => handleOpenModal()}>
-          + Agregar Registro
-        </button>
+        {isAdmin && (
+          <button className="btn btn-primary" onClick={() => handleOpenModal()}>
+            + Agregar Registro
+          </button>
+        )}
         <button className="btn" onClick={handlePrint}>
           Exportar a PDF
         </button>
@@ -177,7 +214,6 @@ export default function Home() {
         {!loading && timelineData.map((item) => {
           const itemTypeClass = item.type === 'pending' ? 'item-pending' : 'item-extra';
           
-          // Calculate number based on its position in its own category
           const categoryItems = timelineData.filter(i => (i.type || 'extra') === (item.type || 'extra'));
           const displayIndex = categoryItems.findIndex(i => i.id === item.id) + 1;
 
@@ -185,22 +221,24 @@ export default function Home() {
             <div className={`timeline-item ${itemTypeClass}`} key={item.id}>
               <div className="timeline-node"></div>
               <div className="timeline-content">
-                <div className="timeline-item-actions">
-                  <button 
-                    className="btn-icon" 
-                    onClick={() => handleOpenModal(item)}
-                    title="Editar"
-                  >
-                    ✎
-                  </button>
-                  <button 
-                    className="btn-icon danger" 
-                    onClick={() => handleDelete(item.id)}
-                    title="Eliminar"
-                  >
-                    ×
-                  </button>
-                </div>
+                {isAdmin && (
+                  <div className="timeline-item-actions">
+                    <button 
+                      className="btn-icon" 
+                      onClick={() => handleOpenModal(item)}
+                      title="Editar"
+                    >
+                      ✎
+                    </button>
+                    <button 
+                      className="btn-icon danger" 
+                      onClick={() => handleDelete(item.id)}
+                      title="Eliminar"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
                 
                 <span className="timeline-date">{formatDate(item.date)}</span>
                 <h3 className="timeline-title">{displayIndex}. {item.title}</h3>
@@ -220,14 +258,38 @@ export default function Home() {
         })}
       </div>
 
-      {isModalOpen && (
+      {isLoginModalOpen && (
+        <div className="modal-backdrop" onClick={() => setIsLoginModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <h2 className="modal-header">Acceso de Administrador</h2>
+            <form onSubmit={handleLogin}>
+              <div className="form-group">
+                <label className="form-label">Contraseña</label>
+                <input 
+                  type="password" 
+                  className="form-input" 
+                  required
+                  value={adminPassword}
+                  onChange={e => setAdminPassword(e.target.value)}
+                />
+                {loginError && <small style={{ color: '#ef4444', marginTop: '8px', display: 'block' }}>{loginError}</small>}
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn" onClick={() => setIsLoginModalOpen(false)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary">Ingresar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isModalOpen && isAdmin && (
         <div className="modal-backdrop" onClick={handleCloseModal}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h2 className="modal-header">
               {editingEntry ? "Editar Registro" : "Nuevo Registro"}
             </h2>
             <form onSubmit={handleSave}>
-              
               <div className="form-group">
                 <label className="form-label">Tipo de Registro</label>
                 <select 

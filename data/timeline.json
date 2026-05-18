@@ -1,34 +1,10 @@
 [
   {
-    "id": "1",
-    "date": "Por definir",
-    "title": "Modificación Manual de Devengamientos",
-    "description": "Se implementó una modificación de devengamientos manual para que los administrativos y tesorería puedan solucionar las deudas históricas huérfanas. (Nota: Se notifica y recalca que no hay responsabilidad por el mal uso de esta acción). Además, en la sección 'Auditoría' se pueden visualizar los movimientos que realiza cada administrativo y personal de tesorería.",
-    "tags": ["Base de Datos", "Auditoría", "Administración"],
-    "type": "extra"
-  },
-  {
-    "id": "2",
-    "date": "Por definir",
-    "title": "Nueva Sección de Facturas",
-    "description": "Se agregó la sección 'Facturas' para permitir la verificación y descarga de todos los comprobantes generados desde el inicio de uso del sistema.",
-    "tags": ["Interfaz", "Facturación", "Exportación"],
-    "type": "extra"
-  },
-  {
-    "id": "3",
-    "date": "Por definir",
-    "title": "Análisis Profundo de Datos Históricos",
-    "description": "Se realizó un análisis de datos profundo de forma presencial para chequear y verificar que los movimientos del saldo histórico del sistema anterior se importaran correctamente al sistema nuevo. Los datos fueron migrados con éxito; sin embargo, se trabajó durante 14 días (de 9:00 am a 17:00 pm) en un análisis exhaustivo para comprender y resolver la procedencia de dichos saldos.",
-    "tags": ["Migración", "Análisis de Datos", "Presencial"],
-    "type": "extra"
-  },
-  {
-    "id": "4",
-    "date": "Por definir",
-    "title": "Capacitación a Tesorería",
-    "description": "Se capacitó al área de tesorería en el uso del sistema y sus nuevas implementaciones y funcionalidades.",
-    "tags": ["Capacitación", "Onboarding", "Tesorería"],
-    "type": "extra"
+    "id": "1779065673347",
+    "title": "Implementación de roles y permisos de usuarios",
+    "date": "2026-05-09",
+    "description": "Queda pendiente la implementación del **sistema de roles y permisos** dentro de la plataforma.\n\nActualmente, y hasta tanto se definan formalmente los perfiles correspondientes, **todos los usuarios poseen permisos completos** sobre las funcionalidades del sistema.\n\nSe deja expresa constancia de que:\n\n- La asignación actual de permisos totales es **provisoria**.\n- Resulta necesario definir roles, niveles de acceso y restricciones específicas para cada usuario y/o sector.\n- La falta de segmentación de permisos puede derivar en usos incorrectos, modificaciones involuntarias o acciones realizadas de manera intencional sobre información sensible del sistema.\n\nPor tal motivo, se recomienda avanzar con prioridad en la definición institucional de:\n\n- Roles de usuario  \n- Permisos por sector  \n- Accesos administrativos  \n- Restricciones operativas  \n\nUna vez informados oficialmente los roles correspondientes, se procederá a implementar la estructura de permisos y accesos diferenciados dentro del sistema.\n\nA continuación, se dejan registrados los usuarios y áreas involucradas para su futura configuración de permisos y niveles de acceso.\n\n---",
+    "tags": [],
+    "type": "pending"
   }
 ]

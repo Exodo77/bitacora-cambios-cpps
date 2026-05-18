@@ -2,6 +2,7 @@
 
 import fs from "fs/promises";
 import path from "path";
+import { Redis } from "@upstash/redis";
 
 const dataFilePath = path.join(process.cwd(), "data", "timeline.json");
 
@@ -14,14 +15,22 @@ export type TimelineEntry = {
   type: 'extra' | 'pending';
 };
 
-// Initialize data file if it doesn't exist
+// Initialize Redis if environment variables are set (Vercel)
+const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null;
+
+// Initialize data file if it doesn't exist (Local only)
 async function ensureDataFile() {
+  if (redis) return;
   try {
     await fs.mkdir(path.join(process.cwd(), "data"), { recursive: true });
     try {
       await fs.access(dataFilePath);
     } catch {
-      // If file doesn't exist, create it with empty array
       await fs.writeFile(dataFilePath, JSON.stringify([]), "utf-8");
     }
   } catch (error) {
@@ -30,23 +39,42 @@ async function ensureDataFile() {
 }
 
 export async function getTimelineData(): Promise<TimelineEntry[]> {
-  await ensureDataFile();
   try {
-    const data = await fs.readFile(dataFilePath, "utf-8");
-    return JSON.parse(data);
+    if (redis) {
+      const data = await redis.get<TimelineEntry[]>("timeline_data");
+      return data || [];
+    } else {
+      await ensureDataFile();
+      const data = await fs.readFile(dataFilePath, "utf-8");
+      return JSON.parse(data);
+    }
   } catch (error) {
     console.error("Error reading timeline data:", error);
     return [];
   }
 }
 
-export async function saveTimelineData(data: TimelineEntry[]) {
-  await ensureDataFile();
+export async function saveTimelineData(data: TimelineEntry[], password?: string) {
+  const correctPassword = process.env.ADMIN_PASSWORD || "admin123"; 
+  if (password !== correctPassword) {
+    return { success: false, error: "Contraseña incorrecta" };
+  }
+
   try {
-    await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), "utf-8");
+    if (redis) {
+      await redis.set("timeline_data", data);
+    } else {
+      await ensureDataFile();
+      await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), "utf-8");
+    }
     return { success: true };
   } catch (error) {
     console.error("Error saving timeline data:", error);
-    return { success: false };
+    return { success: false, error: "Error interno al guardar" };
   }
+}
+
+export async function verifyPassword(password: string) {
+  const correctPassword = process.env.ADMIN_PASSWORD || "admin123";
+  return password === correctPassword;
 }
