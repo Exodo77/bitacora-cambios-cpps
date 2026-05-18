@@ -501,12 +501,19 @@ body::after {
     background: none;
     color: black;
   }
+  .timeline-item {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-top: 1.5cm !important;
+    margin-bottom: 1.5cm !important;
+  }
   .timeline-content {
     background: white;
     border: 1px solid #ccc;
     box-shadow: none;
     color: black;
     page-break-inside: avoid;
+    break-inside: avoid;
   }
   .timeline-title {
     color: black;
