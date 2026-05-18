@@ -430,14 +430,21 @@ body::after {
 
 /* Print Styles */
 @media print {
+  @page {
+    margin: 0; /* Oculta el encabezado y pie de página (URL, fecha, localhost) */
+  }
   body {
     background: white;
     color: black;
+    padding: 2cm; /* Añade margen interno ya que quitamos el de la página */
   }
   body::before, body::after {
     display: none;
   }
   .controls-container, .timeline-item-actions {
+    display: none !important;
+  }
+  .timeline-tags {
     display: none !important;
   }
   .header-title {

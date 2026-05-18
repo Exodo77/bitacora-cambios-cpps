@@ -121,6 +121,13 @@ export default function Home() {
           Registro oficial de actualizaciones, auditorías y nuevas funcionalidades incorporadas al sistema del Colegio Profesional de Psicopedagogía. <br/> 
           <strong>(Implementaciones y Tareas Extraordinarias Fuera del Presupuesto Original).</strong>
         </p>
+        <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'center' }}>
+          <img 
+            src="/logo.png" 
+            alt="Escudo del Colegio Profesional de Psicopedagogía de Salta" 
+            style={{ maxWidth: '250px', height: 'auto', dropShadow: '0 10px 20px rgba(0,0,0,0.2)' }} 
+          />
+        </div>
       </div>
 
       <div className="controls-container">
