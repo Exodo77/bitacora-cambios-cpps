@@ -538,8 +538,45 @@ body::after {
   margin-top: 2rem;
 }
 
+.print-only {
+  display: none !important;
+}
+
 /* Print Styles */
 @media print {
+  .print-only {
+    display: block !important;
+  }
+  
+  .summary-table-container {
+    page-break-before: always;
+    padding: 2cm !important;
+  }
+  
+  .summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    color: black;
+    font-family: var(--font-inter);
+  }
+  
+  .summary-table th, .summary-table td {
+    border: 1px solid #000;
+    padding: 12px;
+    text-align: left;
+  }
+  
+  .summary-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    font-family: var(--font-outfit);
+  }
+  
+  .summary-table tfoot td {
+    background-color: #e0e0e0;
+  }
+
   @page {
     margin: 0; /* Oculta el encabezado y pie de página (URL, fecha, localhost) */
   }

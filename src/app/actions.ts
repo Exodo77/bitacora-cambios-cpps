@@ -13,6 +13,7 @@ export type TimelineEntry = {
   description: string;
   tags: string[];
   type: 'extra' | 'pending';
+  price?: number;
 };
 
 // Initialize Redis if environment variables are set (Vercel)

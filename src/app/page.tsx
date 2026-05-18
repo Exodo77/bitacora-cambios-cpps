@@ -8,7 +8,7 @@ export default function Home() {
   const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'extra' | 'pending'>('extra');
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light'); // Cambiado a 'light' por defecto
   
   // Auth State
   const [isAdmin, setIsAdmin] = useState(false);
@@ -27,15 +27,18 @@ export default function Home() {
     description: "",
     tags: "",
     type: "extra" as "extra" | "pending",
+    price: "",
   });
 
   useEffect(() => {
     loadData();
-    // Cargar tema guardado
+    // Cargar tema guardado (o forzar light si es la primera vez y lo tenemos por defecto)
     const savedTheme = localStorage.getItem('theme') as 'dark' | 'light';
     if (savedTheme) {
       setTheme(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
     }
   }, []);
 
@@ -78,6 +81,7 @@ export default function Home() {
         description: entry.description,
         tags: entry.tags.join(", "),
         type: entry.type || "extra",
+        price: entry.price !== undefined ? entry.price.toString() : "",
       });
     } else {
       setEditingEntry(null);
@@ -87,6 +91,7 @@ export default function Home() {
         description: "",
         tags: "",
         type: activeTab,
+        price: "",
       });
     }
     setIsModalOpen(true);
@@ -106,13 +111,14 @@ export default function Home() {
       .filter(t => t !== "");
 
     const finalDate = formData.date || "Por definir";
+    const priceNum = formData.price ? parseFloat(formData.price) : undefined;
 
     let newData: TimelineEntry[];
 
     if (editingEntry) {
       newData = timelineData.map(item => 
         item.id === editingEntry.id 
-          ? { ...item, ...formData, date: finalDate, tags: tagsArray } 
+          ? { ...item, ...formData, date: finalDate, tags: tagsArray, price: priceNum } 
           : item
       );
     } else {
@@ -123,6 +129,7 @@ export default function Home() {
         description: formData.description,
         tags: tagsArray,
         type: formData.type,
+        price: priceNum,
       };
       newData = [...timelineData, newEntry];
     }
@@ -271,6 +278,13 @@ export default function Home() {
                 
                 <span className="timeline-date">{formatDate(item.date)}</span>
                 <h3 className="timeline-title">{displayIndex}. {item.title}</h3>
+                
+                {item.price !== undefined && (
+                  <div style={{ color: 'var(--accent-secondary)', fontWeight: 'bold', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                    Inversión: ${item.price.toLocaleString('es-AR')}
+                  </div>
+                )}
+
                 <div className="timeline-description">
                   <ReactMarkdown>{item.description}</ReactMarkdown>
                 </div>
@@ -285,6 +299,39 @@ export default function Home() {
             </div>
           );
         })}
+      </div>
+
+      {/* Print Only Summary Table */}
+      <div className="print-only summary-table-container">
+        <h2 style={{ color: 'black', marginBottom: '1rem', textAlign: 'center', fontFamily: 'var(--font-outfit)' }}>
+          Resumen de Costos ({activeTab === 'extra' ? 'Completadas/Extras' : 'Pendientes'})
+        </h2>
+        <table className="summary-table">
+          <thead>
+            <tr>
+              <th style={{ width: '10%' }}>Ítem</th>
+              <th style={{ width: '60%' }}>Descripción</th>
+              <th style={{ width: '30%', textAlign: 'right' }}>Costo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentTabItems.map((item, index) => (
+              <tr key={item.id}>
+                <td>{index + 1}</td>
+                <td>{item.title}</td>
+                <td style={{ textAlign: 'right' }}>{item.price !== undefined ? `$${item.price.toLocaleString('es-AR')}` : '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan={2} style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '1.2rem' }}>Total General:</td>
+              <td style={{ fontWeight: 'bold', textAlign: 'right', fontSize: '1.2rem' }}>
+                ${currentTabItems.reduce((acc, curr) => acc + (curr.price || 0), 0).toLocaleString('es-AR')}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
 
       {isLoginModalOpen && (
@@ -342,6 +389,23 @@ export default function Home() {
                   onChange={e => setFormData({...formData, title: e.target.value})}
                 />
               </div>
+
+              <div className="form-group">
+                <label className="form-label">Costo / Presupuesto (Opcional)</label>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span style={{ marginRight: '8px', color: 'var(--text-secondary)', fontSize: '1.2rem' }}>$</span>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    value={formData.price}
+                    onChange={e => setFormData({...formData, price: e.target.value})}
+                  />
+                </div>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Fecha</label>
                 <input 
@@ -355,6 +419,7 @@ export default function Home() {
                   Dejar vacío para mantener como "Por definir"
                 </small>
               </div>
+              
               <div className="form-group">
                 <label className="form-label">Descripción (soporta Markdown)</label>
                 <textarea 
@@ -364,6 +429,7 @@ export default function Home() {
                   onChange={e => setFormData({...formData, description: e.target.value})}
                 ></textarea>
               </div>
+              
               <div className="form-group">
                 <label className="form-label">Etiquetas (separadas por coma)</label>
                 <input 
@@ -374,6 +440,7 @@ export default function Home() {
                   onChange={e => setFormData({...formData, tags: e.target.value})}
                 />
               </div>
+              
               <div className="modal-actions">
                 <button type="button" className="btn" onClick={handleCloseModal}>
                   Cancelar
