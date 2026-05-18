@@ -8,6 +8,7 @@ export default function Home() {
   const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'extra' | 'pending'>('extra');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   
   // Auth State
   const [isAdmin, setIsAdmin] = useState(false);
@@ -30,7 +31,20 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
+    // Cargar tema guardado
+    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light';
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
   }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -148,24 +162,31 @@ export default function Home() {
 
   return (
     <main>
-      {/* Fixed Admin Auth Buttons */}
-      {!isAdmin ? (
+      {/* Top right buttons container */}
+      <div className="print-hidden" style={{ position: 'fixed', top: '15px', right: '15px', display: 'flex', gap: '10px', zIndex: 1000 }}>
         <button 
-          className="print-hidden"
-          onClick={() => setIsLoginModalOpen(true)}
-          style={{ position: 'fixed', top: '15px', right: '15px', padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '20px', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.85rem', zIndex: 1000, backdropFilter: 'blur(10px)' }}
+          onClick={toggleTheme}
+          style={{ padding: '8px 16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: '20px', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.85rem', backdropFilter: 'blur(10px)' }}
         >
-          🔒 Acceso Admin
+          {theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
         </button>
-      ) : (
-        <button 
-          className="print-hidden"
-          onClick={() => { setIsAdmin(false); setAdminPassword(''); }}
-          style={{ position: 'fixed', top: '15px', right: '15px', padding: '8px 16px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)', borderRadius: '20px', color: '#fca5a5', cursor: 'pointer', fontSize: '0.85rem', zIndex: 1000, backdropFilter: 'blur(10px)' }}
-        >
-          Cerrar Sesión
-        </button>
-      )}
+        
+        {!isAdmin ? (
+          <button 
+            onClick={() => setIsLoginModalOpen(true)}
+            style={{ padding: '8px 16px', background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: '20px', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.85rem', backdropFilter: 'blur(10px)' }}
+          >
+            🔒 Acceso Admin
+          </button>
+        ) : (
+          <button 
+            onClick={() => { setIsAdmin(false); setAdminPassword(''); }}
+            style={{ padding: '8px 16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '20px', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem', backdropFilter: 'blur(10px)' }}
+          >
+            Cerrar Sesión
+          </button>
+        )}
+      </div>
 
       <div className="header-container">
         <h1 className="header-title">Bitácora de Implementaciones</h1>
@@ -177,7 +198,7 @@ export default function Home() {
           <img 
             src="/logo.png" 
             alt="Escudo del Colegio Profesional de Psicopedagogía de Salta" 
-            style={{ maxWidth: '300px', height: 'auto', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.3))' }} 
+            style={{ maxWidth: '300px', height: 'auto', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.2))' }} 
           />
         </div>
       </div>
@@ -304,6 +325,7 @@ export default function Home() {
                   className="form-input" 
                   value={formData.type}
                   onChange={e => setFormData({...formData, type: e.target.value as "extra" | "pending"})}
+                  style={{ background: 'var(--bg-color)' }}
                 >
                   <option value="extra">Implementaciones y Tareas Extraordinarias (Completado)</option>
                   <option value="pending">Implementaciones Pendientes</option>
@@ -327,7 +349,7 @@ export default function Home() {
                   className="form-input" 
                   value={formData.date === "Por definir" ? "" : formData.date}
                   onChange={e => setFormData({...formData, date: e.target.value})}
-                  style={{ colorScheme: "dark" }}
+                  style={{ colorScheme: theme }}
                 />
                 <small style={{ color: "var(--text-secondary)", fontSize: "0.8rem", marginTop: "4px", display: "block" }}>
                   Dejar vacío para mantener como "Por definir"
