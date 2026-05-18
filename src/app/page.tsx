@@ -151,6 +151,7 @@ export default function Home() {
       {/* Fixed Admin Auth Buttons */}
       {!isAdmin ? (
         <button 
+          className="print-hidden"
           onClick={() => setIsLoginModalOpen(true)}
           style={{ position: 'fixed', top: '15px', right: '15px', padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '20px', color: 'var(--text-primary)', cursor: 'pointer', fontSize: '0.85rem', zIndex: 1000, backdropFilter: 'blur(10px)' }}
         >
@@ -158,6 +159,7 @@ export default function Home() {
         </button>
       ) : (
         <button 
+          className="print-hidden"
           onClick={() => { setIsAdmin(false); setAdminPassword(''); }}
           style={{ position: 'fixed', top: '15px', right: '15px', padding: '8px 16px', background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.5)', borderRadius: '20px', color: '#fca5a5', cursor: 'pointer', fontSize: '0.85rem', zIndex: 1000, backdropFilter: 'blur(10px)' }}
         >

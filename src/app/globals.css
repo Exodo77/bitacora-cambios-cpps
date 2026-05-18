@@ -527,7 +527,7 @@ body::after {
   body::before, body::after {
     display: none;
   }
-  .controls-container, .timeline-item-actions, .tabs-container {
+  .controls-container, .timeline-item-actions, .tabs-container, .print-hidden {
     display: none !important;
   }
   .timeline-tags {
@@ -549,6 +549,8 @@ body::after {
     break-inside: avoid;
     margin-top: 1.5cm !important;
     margin-bottom: 1.5cm !important;
+    padding: 0 !important;
+    justify-content: center !important;
   }
   .timeline-content {
     background: white;
@@ -557,6 +559,7 @@ body::after {
     color: black;
     page-break-inside: avoid;
     break-inside: avoid;
+    width: 100% !important;
   }
   .timeline-title {
     color: black;
@@ -565,9 +568,7 @@ body::after {
     color: #333;
   }
   .timeline-node {
-    border-color: black;
-    box-shadow: none;
-    background: white;
+    display: none !important;
   }
   .timeline-date {
     color: #555;
@@ -578,6 +579,6 @@ body::after {
     border: 1px solid #ccc;
   }
   .timeline-container::before {
-    background: #ccc;
+    display: none !important;
   }
 }
