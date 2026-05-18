@@ -1,65 +1,71 @@
-import Image from "next/image";
+"use client";
+
+import React from "react";
 
 export default function Home() {
+  const timelineData = [
+    {
+      id: 1,
+      date: "Por definir",
+      title: "Modificación Manual de Devengamientos",
+      description:
+        "Se implementó una modificación de devengamientos manual para que los administrativos y tesorería puedan solucionar las deudas históricas huérfanas. (Nota: Se notifica y recalca que no hay responsabilidad por el mal uso de esta acción). Además, en la sección 'Auditoría' se pueden visualizar los movimientos que realiza cada administrativo y personal de tesorería.",
+      tags: ["Base de Datos", "Auditoría", "Administración"],
+    },
+    {
+      id: 2,
+      date: "Por definir",
+      title: "Nueva Sección de Facturas",
+      description:
+        "Se agregó la sección 'Facturas' para permitir la verificación y descarga de todos los comprobantes generados desde el inicio de uso del sistema.",
+      tags: ["Interfaz", "Facturación", "Exportación"],
+    },
+    {
+      id: 3,
+      date: "Por definir",
+      title: "Análisis Profundo de Datos Históricos",
+      description:
+        "Se realizó un análisis de datos profundo de forma presencial para chequear y verificar que los movimientos del saldo histórico del sistema anterior se importaran correctamente al sistema nuevo. Los datos fueron migrados con éxito; sin embargo, se trabajó durante 14 días (de 9:00 am a 17:00 pm) en un análisis exhaustivo para comprender y resolver la procedencia de dichos saldos.",
+      tags: ["Migración", "Análisis de Datos", "Presencial"],
+    },
+    {
+      id: 4,
+      date: "Por definir",
+      title: "Capacitación a Tesorería",
+      description:
+        "Se capacitó al área de tesorería en el uso del sistema y sus nuevas implementaciones y funcionalidades.",
+      tags: ["Capacitación", "Onboarding", "Tesorería"],
+    },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main>
+      <div className="header-container">
+        <h1 className="header-title">Bitácora de Implementaciones</h1>
+        <p className="header-subtitle">
+          Registro oficial de actualizaciones, auditorías y nuevas funcionalidades incorporadas al sistema del Colegio Profesional de Psicopedagogía, fuera del alcance inicial.
+        </p>
+      </div>
+
+      <div className="timeline-container">
+        {timelineData.map((item) => (
+          <div className="timeline-item" key={item.id}>
+            <div className="timeline-node"></div>
+            <div className="timeline-content">
+              <span className="timeline-date">{item.date}</span>
+              <h3 className="timeline-title">{item.title}</h3>
+              <p className="timeline-description">{item.description}</p>
+              <div className="timeline-tags">
+                {item.tags.map((tag, index) => (
+                  <span className="tag" key={index}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
   );
 }
