@@ -239,21 +239,16 @@ export default function Home() {
       </div>
 
       <div className="controls-container">
-        {isAdmin && (
+        {isAdmin && !isBudgetMode && (
           <>
             <button className="btn btn-primary" onClick={() => handleOpenModal()}>
               + Agregar Registro
             </button>
             <button 
-              className={`btn ${isBudgetMode ? 'btn-primary' : ''}`} 
-              style={isBudgetMode ? { backgroundColor: 'var(--accent-secondary)' } : {}}
-              onClick={() => {
-                const newMode = !isBudgetMode;
-                setIsBudgetMode(newMode);
-                if (!newMode) setSelectedBudgetIds(new Set()); // Reset on exit
-              }}
+              className="btn" 
+              onClick={() => setIsBudgetMode(true)}
             >
-              {isBudgetMode ? '❌ Cancelar Presupuesto' : '📄 Armar Presupuesto'}
+              📄 Armar Presupuesto
             </button>
           </>
         )}
@@ -296,7 +291,11 @@ export default function Home() {
         {!loading && timelineData.map((item) => {
           // If in budget mode, we show all items but allow selection. If printed in budget mode, unselected are hidden.
           const isSelectedForBudget = selectedBudgetIds.has(item.id);
-          const isHiddenInPrint = isBudgetMode && !isSelectedForBudget;
+          
+          // CRITICAL FIX: Determine if it should be hidden in the PDF based on the mode AND tab
+          const isHiddenInPrint = isBudgetMode 
+            ? !isSelectedForBudget 
+            : (item.type || 'extra') !== activeTab;
           
           let itemTypeClass = item.type === 'pending' ? 'item-pending' : 'item-extra';
           
@@ -526,27 +525,46 @@ export default function Home() {
         </div>
       )}
 
-      {/* Floating Export Button */}
-      <button 
-        className="btn print-hidden" 
-        onClick={handlePrint}
-        style={{
-          position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
-          zIndex: 1000,
-          boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-          padding: '1rem 2rem',
-          fontSize: '1.1rem',
-          backgroundColor: isBudgetMode ? 'var(--accent-secondary)' : 'var(--card-bg)',
-          color: isBudgetMode ? 'white' : 'var(--text-primary)',
-          border: '1px solid var(--accent-color)',
-          borderRadius: '50px',
-          backdropFilter: 'blur(10px)'
-        }}
-      >
-        {isBudgetMode ? '🖨️ Exportar Presupuesto a PDF' : '🖨️ Exportar a PDF'}
-      </button>
+      {/* Floating Action Buttons */}
+      <div className="print-hidden" style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000, display: 'flex', gap: '1rem' }}>
+        {isBudgetMode && (
+          <button 
+            className="btn"
+            onClick={() => {
+              setIsBudgetMode(false);
+              setSelectedBudgetIds(new Set());
+            }}
+            style={{
+              boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+              padding: '1rem 2rem',
+              fontSize: '1.1rem',
+              backgroundColor: 'var(--card-bg)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--card-border)',
+              borderRadius: '50px',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            ❌ Cancelar
+          </button>
+        )}
+        <button 
+          className="btn" 
+          onClick={handlePrint}
+          style={{
+            boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
+            padding: '1rem 2rem',
+            fontSize: '1.1rem',
+            backgroundColor: isBudgetMode ? 'var(--accent-secondary)' : 'var(--card-bg)',
+            color: isBudgetMode ? 'white' : 'var(--text-primary)',
+            border: '1px solid var(--accent-color)',
+            borderRadius: '50px',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          {isBudgetMode ? '🖨️ Exportar Presupuesto a PDF' : '🖨️ Exportar a PDF'}
+        </button>
+      </div>
     </main>
   );
 }

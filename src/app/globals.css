@@ -594,12 +594,6 @@ body::after {
   .timeline-tags {
     display: none !important;
   }
-  .item-pending {
-    display: none !important; /* Excluir pendientes del PDF */
-  }
-  .item-extra {
-    display: flex !important; /* Forzar mostrar las completadas aunque se esté en la otra pestaña */
-  }
   .header-title {
     -webkit-text-fill-color: black;
     background: none;
