@@ -104,7 +104,7 @@ export default function Home() {
         date: "",
         description: "",
         tags: "",
-        type: activeTab,
+        type: activeTab === 'chat' ? 'extra' : activeTab,
         price: "",
       });
     }
