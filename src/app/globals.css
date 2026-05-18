@@ -547,9 +547,9 @@ body::after {
   .timeline-item {
     page-break-inside: avoid;
     break-inside: avoid;
-    margin-top: 1.5cm !important;
-    margin-bottom: 1.5cm !important;
-    padding: 0 !important;
+    padding-top: 2.5cm !important;
+    padding-bottom: 2.5cm !important;
+    margin: 0 !important;
     justify-content: center !important;
   }
   .timeline-content {
