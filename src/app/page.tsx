@@ -176,6 +176,11 @@ export default function Home() {
 
         {!loading && timelineData.map((item) => {
           const itemTypeClass = item.type === 'pending' ? 'item-pending' : 'item-extra';
+          
+          // Calculate number based on its position in its own category
+          const categoryItems = timelineData.filter(i => (i.type || 'extra') === (item.type || 'extra'));
+          const displayIndex = categoryItems.findIndex(i => i.id === item.id) + 1;
+
           return (
             <div className={`timeline-item ${itemTypeClass}`} key={item.id}>
               <div className="timeline-node"></div>
@@ -198,7 +203,7 @@ export default function Home() {
                 </div>
                 
                 <span className="timeline-date">{formatDate(item.date)}</span>
-                <h3 className="timeline-title">{item.title}</h3>
+                <h3 className="timeline-title">{displayIndex}. {item.title}</h3>
                 <div className="timeline-description">
                   <ReactMarkdown>{item.description}</ReactMarkdown>
                 </div>
