@@ -8,7 +8,7 @@ export default function Home() {
   const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'extra' | 'pending'>('extra');
-  const [theme, setTheme] = useState<'dark' | 'light'>('light'); // Cambiado a 'light' por defecto
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   
   // Auth State
   const [isAdmin, setIsAdmin] = useState(false);
@@ -20,6 +20,10 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<TimelineEntry | null>(null);
   
+  // Budget Mode State
+  const [isBudgetMode, setIsBudgetMode] = useState(false);
+  const [selectedBudgetIds, setSelectedBudgetIds] = useState<Set<string>>(new Set());
+
   // Form State
   const [formData, setFormData] = useState({
     title: "",
@@ -32,7 +36,6 @@ export default function Home() {
 
   useEffect(() => {
     loadData();
-    // Cargar tema guardado (o forzar light si es la primera vez y lo tenemos por defecto)
     const savedTheme = localStorage.getItem('theme') as 'dark' | 'light';
     if (savedTheme) {
       setTheme(savedTheme);
@@ -149,10 +152,22 @@ export default function Home() {
       const res = await saveTimelineData(newData, adminPassword);
       if (res.success) {
         setTimelineData(newData);
+        if (selectedBudgetIds.has(id)) {
+          const newSet = new Set(selectedBudgetIds);
+          newSet.delete(id);
+          setSelectedBudgetIds(newSet);
+        }
       } else {
         alert("Error al eliminar: " + res.error);
       }
     }
+  };
+
+  const toggleBudgetSelection = (id: string) => {
+    const newSet = new Set(selectedBudgetIds);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedBudgetIds(newSet);
   };
 
   const formatDate = (dateString: string) => {
@@ -166,6 +181,11 @@ export default function Home() {
   };
 
   const currentTabItems = timelineData.filter(item => (item.type || 'extra') === activeTab);
+
+  // Table items depends on whether we are generating a budget or just printing normally
+  const tableItems = isBudgetMode 
+    ? timelineData.filter(item => selectedBudgetIds.has(item.id)) 
+    : currentTabItems;
 
   return (
     <main>
@@ -187,7 +207,7 @@ export default function Home() {
           </button>
         ) : (
           <button 
-            onClick={() => { setIsAdmin(false); setAdminPassword(''); }}
+            onClick={() => { setIsAdmin(false); setAdminPassword(''); setIsBudgetMode(false); }}
             style={{ padding: '8px 16px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '20px', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem', backdropFilter: 'blur(10px)' }}
           >
             Cerrar Sesión
@@ -196,10 +216,18 @@ export default function Home() {
       </div>
 
       <div className="header-container">
-        <h1 className="header-title">Bitácora de Implementaciones</h1>
+        <h1 className="header-title">
+          {isBudgetMode ? 'Presupuesto de Implementaciones' : 'Bitácora de Implementaciones'}
+        </h1>
         <p className="header-subtitle">
-          Registro oficial de actualizaciones, auditorías y nuevas funcionalidades incorporadas al sistema del Colegio Profesional de Psicopedagogía. <br/> 
-          <strong>(Implementaciones y Tareas Extraordinarias Fuera del Presupuesto Original).</strong>
+          {isBudgetMode ? (
+            <>Presupuesto oficial estimado para las tareas e implementaciones seleccionadas.</>
+          ) : (
+            <>
+              Registro oficial de actualizaciones, auditorías y nuevas funcionalidades incorporadas al sistema del Colegio Profesional de Psicopedagogía. <br/> 
+              <strong>(Implementaciones y Tareas Extraordinarias Fuera del Presupuesto Original).</strong>
+            </>
+          )}
         </p>
         <div style={{ marginTop: '5rem', marginBottom: '3rem', display: 'flex', justifyContent: 'center', width: '100%' }}>
           <img 
@@ -212,52 +240,94 @@ export default function Home() {
 
       <div className="controls-container">
         {isAdmin && (
-          <button className="btn btn-primary" onClick={() => handleOpenModal()}>
-            + Agregar Registro
-          </button>
+          <>
+            <button className="btn btn-primary" onClick={() => handleOpenModal()}>
+              + Agregar Registro
+            </button>
+            <button 
+              className={`btn ${isBudgetMode ? 'btn-primary' : ''}`} 
+              style={isBudgetMode ? { backgroundColor: 'var(--accent-secondary)' } : {}}
+              onClick={() => {
+                const newMode = !isBudgetMode;
+                setIsBudgetMode(newMode);
+                if (!newMode) setSelectedBudgetIds(new Set()); // Reset on exit
+              }}
+            >
+              {isBudgetMode ? '❌ Cancelar Presupuesto' : '📄 Armar Presupuesto'}
+            </button>
+          </>
         )}
         <button className="btn" onClick={handlePrint}>
-          Exportar a PDF
+          {isBudgetMode ? '🖨️ Exportar Presupuesto a PDF' : '🖨️ Exportar a PDF'}
         </button>
       </div>
 
-      <div className="tabs-container">
-        <button 
-          className={`tab-btn ${activeTab === 'extra' ? 'active' : ''}`}
-          onClick={() => setActiveTab('extra')}
-        >
-          Completadas / Extras
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pending')}
-        >
-          Implementaciones Pendientes
-        </button>
-      </div>
+      {!isBudgetMode && (
+        <div className="tabs-container">
+          <button 
+            className={`tab-btn ${activeTab === 'extra' ? 'active' : ''}`}
+            onClick={() => setActiveTab('extra')}
+          >
+            Completadas / Extras
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
+            onClick={() => setActiveTab('pending')}
+          >
+            Implementaciones Pendientes
+          </button>
+        </div>
+      )}
 
-      <div className={`timeline-container show-${activeTab}`}>
+      {isBudgetMode && (
+        <div style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--text-secondary)' }}>
+          Selecciona las implementaciones que deseas incluir en este presupuesto.
+        </div>
+      )}
+
+      <div className={`timeline-container ${!isBudgetMode ? `show-${activeTab}` : ''}`}>
         {loading ? (
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>Cargando bitácora...</div>
         ) : timelineData.length === 0 ? (
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No hay registros en la bitácora.</div>
-        ) : currentTabItems.length === 0 ? (
+        ) : (!isBudgetMode && currentTabItems.length === 0) ? (
           <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
             No hay registros en esta sección.
           </div>
         ) : null}
 
         {!loading && timelineData.map((item) => {
-          const itemTypeClass = item.type === 'pending' ? 'item-pending' : 'item-extra';
+          // If in budget mode, we show all items but allow selection. If printed in budget mode, unselected are hidden.
+          const isSelectedForBudget = selectedBudgetIds.has(item.id);
+          const isHiddenInPrint = isBudgetMode && !isSelectedForBudget;
+          
+          let itemTypeClass = item.type === 'pending' ? 'item-pending' : 'item-extra';
+          
+          // In budget mode, we don't use tab classes to hide items, we show all so they can select
+          if (isBudgetMode) {
+             itemTypeClass = '';
+          }
           
           const categoryItems = timelineData.filter(i => (i.type || 'extra') === (item.type || 'extra'));
           const displayIndex = categoryItems.findIndex(i => i.id === item.id) + 1;
 
           return (
-            <div className={`timeline-item ${itemTypeClass}`} key={item.id}>
+            <div className={`timeline-item ${itemTypeClass} ${isHiddenInPrint ? 'print-hidden' : ''}`} key={item.id} style={{ position: 'relative' }}>
               <div className="timeline-node"></div>
-              <div className="timeline-content">
-                {isAdmin && (
+              
+              {isBudgetMode && (
+                <div className="print-hidden" style={{ position: 'absolute', left: '-50px', top: '3rem', zIndex: 10 }}>
+                  <input 
+                    type="checkbox" 
+                    checked={isSelectedForBudget} 
+                    onChange={() => toggleBudgetSelection(item.id)}
+                    style={{ width: '24px', height: '24px', cursor: 'pointer', accentColor: 'var(--accent-color)' }}
+                  />
+                </div>
+              )}
+
+              <div className="timeline-content" style={isBudgetMode && isSelectedForBudget ? { border: '2px solid var(--accent-color)', boxShadow: '0 0 20px rgba(56, 189, 248, 0.3)' } : {}}>
+                {isAdmin && !isBudgetMode && (
                   <div className="timeline-item-actions">
                     <button 
                       className="btn-icon" 
@@ -277,7 +347,9 @@ export default function Home() {
                 )}
                 
                 <span className="timeline-date">{formatDate(item.date)}</span>
-                <h3 className="timeline-title">{displayIndex}. {item.title}</h3>
+                <h3 className="timeline-title">
+                  {isBudgetMode ? `Ítem: ${item.title}` : `${displayIndex}. ${item.title}`}
+                </h3>
                 
                 {item.price !== undefined && (
                   <div style={{ color: 'var(--accent-secondary)', fontWeight: 'bold', marginBottom: '1rem', fontSize: '1.1rem' }}>
@@ -304,7 +376,10 @@ export default function Home() {
       {/* Print Only Summary Table */}
       <div className="print-only summary-table-container">
         <h2 style={{ color: 'black', marginBottom: '1rem', textAlign: 'center', fontFamily: 'var(--font-outfit)' }}>
-          Resumen de Costos ({activeTab === 'extra' ? 'Completadas/Extras' : 'Pendientes'})
+          {isBudgetMode 
+            ? 'Resumen de Presupuesto' 
+            : `Resumen de Costos (${activeTab === 'extra' ? 'Completadas/Extras' : 'Pendientes'})`
+          }
         </h2>
         <table className="summary-table">
           <thead>
@@ -315,7 +390,7 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {currentTabItems.map((item, index) => (
+            {tableItems.map((item, index) => (
               <tr key={item.id}>
                 <td>{index + 1}</td>
                 <td>{item.title}</td>
@@ -327,7 +402,7 @@ export default function Home() {
             <tr>
               <td colSpan={2} style={{ textAlign: 'right', fontWeight: 'bold', fontSize: '1.2rem' }}>Total General:</td>
               <td style={{ fontWeight: 'bold', textAlign: 'right', fontSize: '1.2rem' }}>
-                ${currentTabItems.reduce((acc, curr) => acc + (curr.price || 0), 0).toLocaleString('es-AR')}
+                ${tableItems.reduce((acc, curr) => acc + (curr.price || 0), 0).toLocaleString('es-AR')}
               </td>
             </tr>
           </tfoot>
@@ -335,8 +410,8 @@ export default function Home() {
       </div>
 
       {isLoginModalOpen && (
-        <div className="modal-backdrop" onClick={() => setIsLoginModalOpen(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+        <div className="modal-backdrop" onMouseDown={() => setIsLoginModalOpen(false)}>
+          <div className="modal-content" onMouseDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()} style={{ maxWidth: '400px' }}>
             <h2 className="modal-header">Acceso de Administrador</h2>
             <form onSubmit={handleLogin}>
               <div className="form-group">
@@ -360,8 +435,8 @@ export default function Home() {
       )}
 
       {isModalOpen && isAdmin && (
-        <div className="modal-backdrop" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+        <div className="modal-backdrop" onMouseDown={handleCloseModal}>
+          <div className="modal-content" onMouseDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()}>
             <h2 className="modal-header">
               {editingEntry ? "Editar Registro" : "Nuevo Registro"}
             </h2>
