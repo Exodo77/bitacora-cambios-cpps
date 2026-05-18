@@ -118,7 +118,8 @@ export default function Home() {
       <div className="header-container">
         <h1 className="header-title">Bitácora de Implementaciones</h1>
         <p className="header-subtitle">
-          Registro oficial de actualizaciones, auditorías y nuevas funcionalidades incorporadas al sistema del Colegio Profesional de Psicopedagogía, fuera del alcance inicial.
+          Registro oficial de actualizaciones, auditorías y nuevas funcionalidades incorporadas al sistema del Colegio Profesional de Psicopedagogía. <br/> 
+          <strong>(Implementaciones y Tareas Extraordinarias Fuera del Presupuesto Original).</strong>
         </p>
       </div>
 
