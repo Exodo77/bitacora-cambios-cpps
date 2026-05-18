@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import { getTimelineData, saveTimelineData, TimelineEntry } from "./actions";
 
 export default function Home() {
@@ -168,7 +169,9 @@ export default function Home() {
                 
                 <span className="timeline-date">{formatDate(item.date)}</span>
                 <h3 className="timeline-title">{item.title}</h3>
-                <p className="timeline-description">{item.description}</p>
+                <div className="timeline-description">
+                  <ReactMarkdown>{item.description}</ReactMarkdown>
+                </div>
                 <div className="timeline-tags">
                   {item.tags.map((tag, index) => (
                     <span className="tag" key={index}>

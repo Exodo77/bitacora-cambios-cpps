@@ -205,6 +205,55 @@ body::after {
   margin-bottom: 1.5rem;
 }
 
+/* Markdown styling within description */
+.timeline-description p {
+  margin-bottom: 0.75rem;
+}
+.timeline-description p:last-child {
+  margin-bottom: 0;
+}
+.timeline-description strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.timeline-description ul {
+  margin-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  list-style-type: disc;
+}
+.timeline-description ol {
+  margin-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  list-style-type: decimal;
+}
+.timeline-description a {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+.timeline-description blockquote {
+  border-left: 3px solid var(--accent-color);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--text-secondary);
+  font-style: italic;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem 1rem;
+  border-radius: 0 8px 8px 0;
+}
+.timeline-description code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.85em;
+}
+.timeline-description pre code {
+  display: block;
+  padding: 1rem;
+  overflow-x: auto;
+  margin-bottom: 0.75rem;
+}
+
 .timeline-tags {
   display: flex;
   flex-wrap: wrap;
