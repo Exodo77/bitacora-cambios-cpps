@@ -104,14 +104,14 @@ export async function enhanceDescription(text: string): Promise<{ success: boole
   }
 
   try {
-    const response = await fetch("https://api.blackbox.ai/chat/completions", {
+    const response = await fetch("https://api.blackbox.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "blackbox",
+        model: "blackboxai/blackbox-pro",
         messages: [
           {
             role: "system",
