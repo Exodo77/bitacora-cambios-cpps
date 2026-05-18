@@ -1,13 +1,30 @@
 [
   {
-    "id": "1779063742052",
-    "title": "1. Implementación de modificación manual de devengamientos",
-    "date": "2026-05-05",
-    "description": "Se desarrolló e implementó una funcionalidad de modificación manual de devengamientos, destinada exclusivamente al área administrativa y de tesorería, con el objetivo de permitir la regularización de deudas históricas huérfanas provenientes del sistema anterior.\n\nAsimismo, se deja expresa constancia de que:\n\nEl uso de dicha funcionalidad queda bajo exclusiva responsabilidad de los usuarios autorizados.\nNo se asume responsabilidad alguna ante posibles usos indebidos, incorrectos o no autorizados de esta herramienta.\nSe notificó formalmente sobre el alcance y riesgos asociados a esta acción.\n\nCon el fin de garantizar trazabilidad y control institucional, todos los movimientos realizados mediante esta funcionalidad quedan registrados en la sección “Auditoría”, permitiendo identificar:\n\nUsuario responsable\nFecha y hora de ejecución\nTipo de modificación realizada",
-    "tags": [
-      "nueva funcionalidad",
-      "devengamiento",
-      "auditoria"
-    ]
+    "id": "1",
+    "date": "Por definir",
+    "title": "Modificación Manual de Devengamientos",
+    "description": "Se implementó una modificación de devengamientos manual para que los administrativos y tesorería puedan solucionar las deudas históricas huérfanas. (Nota: Se notifica y recalca que no hay responsabilidad por el mal uso de esta acción). Además, en la sección 'Auditoría' se pueden visualizar los movimientos que realiza cada administrativo y personal de tesorería.",
+    "tags": ["Base de Datos", "Auditoría", "Administración"]
+  },
+  {
+    "id": "2",
+    "date": "Por definir",
+    "title": "Nueva Sección de Facturas",
+    "description": "Se agregó la sección 'Facturas' para permitir la verificación y descarga de todos los comprobantes generados desde el inicio de uso del sistema.",
+    "tags": ["Interfaz", "Facturación", "Exportación"]
+  },
+  {
+    "id": "3",
+    "date": "Por definir",
+    "title": "Análisis Profundo de Datos Históricos",
+    "description": "Se realizó un análisis de datos profundo de forma presencial para chequear y verificar que los movimientos del saldo histórico del sistema anterior se importaran correctamente al sistema nuevo. Los datos fueron migrados con éxito; sin embargo, se trabajó durante 14 días (de 9:00 am a 17:00 pm) en un análisis exhaustivo para comprender y resolver la procedencia de dichos saldos.",
+    "tags": ["Migración", "Análisis de Datos", "Presencial"]
+  },
+  {
+    "id": "4",
+    "date": "Por definir",
+    "title": "Capacitación a Tesorería",
+    "description": "Se capacitó al área de tesorería en el uso del sistema y sus nuevas implementaciones y funcionalidades.",
+    "tags": ["Capacitación", "Onboarding", "Tesorería"]
   }
 ]
