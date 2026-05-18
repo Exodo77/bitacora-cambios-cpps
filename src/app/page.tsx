@@ -35,10 +35,6 @@ export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<TimelineEntry | null>(null);
   
-  // Budget Mode State
-  const [isBudgetMode, setIsBudgetMode] = useState(false);
-  const [selectedBudgetIds, setSelectedBudgetIds] = useState<Set<string>>(new Set());
-
   // Form State
   const [formData, setFormData] = useState({
     title: "",
