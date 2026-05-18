@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { getTimelineData, saveTimelineData, TimelineEntry, verifyPassword } from "./actions";
+import { getTimelineData, saveTimelineData, TimelineEntry, verifyPassword, enhanceDescription } from "./actions";
 
 export default function Home() {
   const [timelineData, setTimelineData] = useState<TimelineEntry[]>([]);
@@ -103,6 +103,24 @@ export default function Home() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingEntry(null);
+  };
+
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
+  const handleEnhance = async () => {
+    if (!formData.description.trim()) {
+      alert("Por favor, escribe al menos algunas palabras en la descripción para que la IA pueda mejorarla.");
+      return;
+    }
+    setIsEnhancing(true);
+    const res = await enhanceDescription(formData.description);
+    setIsEnhancing(false);
+    
+    if (res.success && res.data) {
+      setFormData(prev => ({ ...prev, description: res.data as string }));
+    } else {
+      alert("Error al mejorar texto: " + res.error);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -492,7 +510,31 @@ export default function Home() {
               </div>
               
               <div className="form-group">
-                <label className="form-label">Descripción (soporta Markdown)</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label className="form-label" style={{ marginBottom: 0 }}>Descripción (soporta Markdown)</label>
+                  <button 
+                    type="button" 
+                    onClick={handleEnhance}
+                    disabled={isEnhancing}
+                    style={{
+                      background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '15px',
+                      padding: '4px 12px',
+                      fontSize: '0.8rem',
+                      cursor: isEnhancing ? 'wait' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      opacity: isEnhancing ? 0.7 : 1,
+                      fontWeight: 'bold',
+                      boxShadow: '0 2px 10px rgba(139, 92, 246, 0.3)'
+                    }}
+                  >
+                    {isEnhancing ? '✨ Procesando...' : '✨ Mejorar con IA'}
+                  </button>
+                </div>
                 <textarea 
                   className="form-textarea" 
                   required

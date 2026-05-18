@@ -96,3 +96,43 @@ export async function verifyPassword(password: string) {
   const correctPassword = process.env.ADMIN_PASSWORD || "admin123";
   return password === correctPassword;
 }
+
+export async function enhanceDescription(text: string): Promise<{ success: boolean; data?: string; error?: string }> {
+  const apiKey = process.env.BLACKBOX_API_KEY;
+  if (!apiKey) {
+    return { success: false, error: "Falta configurar BLACKBOX_API_KEY en .env.local" };
+  }
+
+  try {
+    const response = await fetch("https://api.blackbox.ai/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "blackbox",
+        messages: [
+          {
+            role: "system",
+            content: "Eres un redactor técnico profesional. Tu tarea es recibir una descripción rápida o informal de una tarea técnica o cambio en un sistema, y redactarla de forma formal, profesional y clara, ideal para una bitácora oficial o presupuesto. Mantén un tono neutro y corporativo. Usa viñetas (Markdown) si ayuda a estructurar, pero manténlo conciso. NO agregues introducciones ni saludos. Responde ÚNICAMENTE con el texto final mejorado."
+          },
+          {
+            role: "user",
+            content: text
+          }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error de la API: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return { success: true, data: data.choices[0].message.content };
+  } catch (error: any) {
+    console.error("Error enhancing description:", error);
+    return { success: false, error: error.message || "Error al conectar con la IA" };
+  }
+}
