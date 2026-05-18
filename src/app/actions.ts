@@ -22,9 +22,9 @@ const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_RE
 
 const redis = redisUrl && redisToken
   ? new Redis({
-      url: redisUrl,
-      token: redisToken,
-    })
+    url: redisUrl,
+    token: redisToken,
+  })
   : null;
 
 // Initialize data file if it doesn't exist (Local only)
@@ -46,7 +46,7 @@ export async function getTimelineData(): Promise<TimelineEntry[]> {
   try {
     if (redis) {
       let data = await redis.get<TimelineEntry[]>("timeline_data");
-      
+
       // Auto-migrate from local file if Redis is completely empty
       if (!data || data.length === 0) {
         try {
@@ -73,7 +73,7 @@ export async function getTimelineData(): Promise<TimelineEntry[]> {
 }
 
 export async function saveTimelineData(data: TimelineEntry[], password?: string) {
-  const correctPassword = process.env.ADMIN_PASSWORD || "admin123"; 
+  const correctPassword = process.env.ADMIN_PASSWORD || "admin123";
   if (password !== correctPassword) {
     return { success: false, error: "Contraseña incorrecta" };
   }
@@ -115,7 +115,7 @@ export async function enhanceDescription(text: string): Promise<{ success: boole
         messages: [
           {
             role: "system",
-            content: "Eres un redactor técnico profesional. Tu tarea es recibir una descripción rápida o informal de una tarea técnica o cambio en un sistema, y redactarla de forma formal, profesional y clara, ideal para una bitácora oficial o presupuesto. Mantén un tono neutro y corporativo. Usa viñetas (Markdown) si ayuda a estructurar, pero manténlo conciso. NO agregues introducciones ni saludos. Responde ÚNICAMENTE con el texto final mejorado."
+            content: "Actúa como redactor técnico senior especializado en documentación de software y alcance contractual; recibirás descripciones informales o notas técnicas y debes transformarlas en documentación profesional lista para bitácoras, informes o anexos de presupuesto, usando redacción formal, clara y corporativa, organizada en secciones numeradas y listas cuando aporte claridad, sin inventar información ni agregar supuestos, priorizando trazabilidad, responsabilidades y delimitación de alcance, corrigiendo ambigüedades del texto original, y si el texto recibido implica riesgo operativo, legal o de mal uso debes dejar constancia explícita dentro del documento, respondiendo únicamente con el documento final redactado, sin saludos, explicaciones ni introducciones."
           },
           {
             role: "user",
@@ -137,7 +137,7 @@ export async function enhanceDescription(text: string): Promise<{ success: boole
   }
 }
 
-export async function askBlackboxChat(messages: {role: string, content: string}[]): Promise<{ success: boolean; data?: string; error?: string }> {
+export async function askBlackboxChat(messages: { role: string, content: string }[]): Promise<{ success: boolean; data?: string; error?: string }> {
   const apiKey = process.env.BLACKBOX_API_KEY;
   if (!apiKey) {
     return { success: false, error: "Falta configurar BLACKBOX_API_KEY en .env.local" };
@@ -153,7 +153,7 @@ export async function askBlackboxChat(messages: {role: string, content: string}[
       body: JSON.stringify({
         model: "blackboxai/blackbox-pro",
         messages: [
-          { role: "system", content: "Eres un asistente de inteligencia artificial avanzado y amigable, llamado Blackbox. Estás integrado en la plataforma interna del Colegio de Psicopedagogía. Ayuda al administrador en lo que necesite de manera clara, educada y profesional, usando formato Markdown para organizar la información." },
+          { role: "system", content: "Eres Blackbox, un asistente de inteligencia artificial integrado en la plataforma interna del Colegio de Psicopedagogía. Tu función es asistir al administrador en tareas operativas, administrativas y técnicas relacionadas con el sistema, la gestión institucional y la bitácora. Debes responder de forma clara, profesional y concisa, utilizando siempre formato Markdown para estructurar la información. Prioriza respuestas prácticas, accionables y orientadas a la resolución de tareas. Evita conversaciones informales, opiniones personales o contenido fuera del contexto institucional. Si la solicitud puede afectar datos, procesos administrativos o seguridad del sistema, debes advertirlo explícitamente y sugerir buenas prácticas." },
           ...messages
         ]
       })
